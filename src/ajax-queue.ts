@@ -2,8 +2,8 @@
 export type QueueCallback = (...args: any[]) => Promise<void>;
 
 export class AjaxQueue {
+    // Callback to the executed in case of a rejected Promise
     public onError?: () => void;
-
     private queue: QueueCallback[];
     private callBackParams: any[];
     private callbackSignatures: string[];
@@ -11,6 +11,11 @@ export class AjaxQueue {
     private isIdle: boolean;
     private round: number;
 
+    /**
+     * Creates a AjaxQueue instance.
+     *
+     * @param disableLogs Controls whether or not to output any logging messages
+     */
     public constructor(disableLogs: boolean = false) {
         this.queue = [];
         this.callbackSignatures = [];
@@ -25,14 +30,21 @@ export class AjaxQueue {
         }
     }
 
+    /**
+     * Adds a callback to the queue and if no other task is being executed, it
+     * will immediately start executing the passed callback.
+     *
+     * @param callback The callback to be executed.
+     * @param args The parameters to be passed to the callback
+     */
     public add(callback: QueueCallback, ...args: any[]): void {
         let params: string = JSON.stringify(args);
         params = params.substring(1, params.length - 1);
 
         let signature = callback.name !== '' ? callback.name : 'anonymous_function';
         signature += '(' + params + ')';
-
         this.callbackSignatures.push(signature);
+
         this.queue.push(callback);
         this.callBackParams.push(args);
         const message = 'Adding ' + signature;
@@ -46,6 +58,17 @@ export class AjaxQueue {
         }
     }
 
+    /**
+     * Executes the first callback in the queue. If the callback terminates
+     * success (returns a resolved Promise) the next callback in the queue
+     * will be executed. If a rejected Promise is returned by the callback
+     * then the function will empty remove the remaining callbacks from the
+     * queue.
+     *
+     * WARNING: At the moment the function cannot handle cases where you
+     * forget to return a Promise. So make sure to return a Promise in
+     * every case.
+     */
     private execute(): void {
         if (this.queue && this.queue.length > 0) {
             this.round += 1;
@@ -87,6 +110,11 @@ export class AjaxQueue {
         }
     }
 
+    /**
+     *
+     * @param level Controls the level of the logs.
+     * @param message The text to be logged.
+     */
     private log(level: 'log' | 'error', message: string): void {
         if (this.logsEnabled) {
             console[level]('[' + this.round + '] ' + message);
