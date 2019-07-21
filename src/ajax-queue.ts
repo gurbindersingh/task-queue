@@ -1,85 +1,95 @@
-import { QueueCallback } from './ICallback';
+// Interface for Callbacks passed to the queue
+export type QueueCallback = (...args: any[]) => Promise<void>;
 
 export class AjaxQueue {
     public onError?: () => void;
 
     private queue: QueueCallback[];
-    private isIdle: boolean;
     private callBackParams: any[];
+    private callbackSignatures: string[];
+    private logsEnabled: boolean;
+    private isIdle: boolean;
+    private round: number;
 
-    public constructor() {
+    public constructor(disableLogs: boolean = false) {
         this.queue = [];
+        this.callbackSignatures = [];
         this.callBackParams = [];
+
         this.isIdle = true;
-        console.log('[0] Created new Queue.');
-    }
+        this.round = 0;
+        this.logsEnabled = !disableLogs;
 
-    public add(callback: QueueCallback, parameters?: {}): void {
-        this.queue.push(callback);
-        this.callBackParams.push(parameters);
-
-        console.log('[0] Adding new task.');
-
-        if (this.isIdle) {
-            this.isIdle = false;
-            this.execute(1);
-        } else {
-            console.log('[0] Still executing other tasks. Request was queued.');
+        if (this.logsEnabled) {
+            console.log('[-] Created new Queue.');
         }
     }
 
-    private execute(round: number): void {
+    public add(callback: QueueCallback, ...args: any[]): void {
+        let params: string = JSON.stringify(args);
+        params = params.substring(1, params.length - 1);
+
+        let signature = callback.name !== '' ? callback.name : 'anonymous_function';
+        signature += '(' + params + ')';
+
+        this.callbackSignatures.push(signature);
+        this.queue.push(callback);
+        this.callBackParams.push(args);
+        const message = 'Adding ' + signature;
+
+        if (this.isIdle) {
+            this.log('log', message);
+            this.isIdle = false;
+            this.execute();
+        } else {
+            this.log('log', message + '\n    -> Queued, still executing other tasks.');
+        }
+    }
+
+    private execute(): void {
         if (this.queue && this.queue.length > 0) {
-            const firstRequest = this.queue.shift();
-            const requestParams = this.callBackParams.shift();
+            this.round += 1;
+            const callback = this.queue.shift();
+            const parameters = this.callBackParams.shift();
+            const signature = this.callbackSignatures.shift();
 
-            if (firstRequest !== undefined && requestParams !== undefined) {
-                console.log('[' + round + '] Executing ' + firstRequest.name);
+            if (callback !== undefined && parameters !== undefined) {
+                this.log('log', 'Executing ' + signature);
 
-                firstRequest(requestParams)
+                callback(...parameters)
                     .then(() => {
-                        console.log(
-                            '[' +
-                                round +
-                                '] Task executed, starting on next one.',
-                        );
-
-                        this.execute(round + 1);
+                        this.log('log', signature + ' executed, starting on next one.');
+                        this.execute();
                     })
                     .catch(() => {
-                        console.error(
-                            '[' +
-                                round +
-                                '] Failed to execute task. Emptying queue.',
-                        );
-
+                        this.log('error', 'Error in ' + signature + '. Emptying queue.');
                         this.queue.length = 0;
                         this.callBackParams.length = 0;
+                        this.round = 0;
 
                         if (this.onError !== undefined) {
-                            console.error('[' + round + '] Calling onError.');
+                            this.log('error', 'Calling onError.');
                             this.onError();
                         }
                         this.isIdle = true;
                     });
             } else {
-                if (firstRequest === undefined) {
-                    console.log('[' + round + '] Request is undefined');
-                } else if (requestParams === undefined) {
-                    console.log(
-                        '[' + round + '] Request Parameters are undefined',
-                    );
+                if (callback === undefined) {
+                    this.log('log', 'Request is undefined');
+                } else if (parameters === undefined) {
+                    this.log('log', 'Request Parameters are undefined');
                 }
             }
         } else {
             this.isIdle = true;
+            this.round = 0;
+            this.log('log', 'All tasks complete. Going into Idle mode');
+        }
+    }
 
-            console.log(
-                '[' +
-                    round +
-                    '] All tasks complete. Going into Idle mode: ' +
-                    this.isIdle,
-            );
+    private log(level: 'log' | 'error', message: string): void {
+        if (this.logsEnabled) {
+            console[level]('[' + this.round + '] ' + message);
         }
     }
 }
