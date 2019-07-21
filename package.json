@@ -1,28 +1,29 @@
 {
-  "name": "simple-ajax-queue",
-  "version": "0.0.1",
-  "description": "A simple Ajax Queue written in Typescript",
-  "main": "example.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/gurbindersingh/simple-ajax-queue.git"
-  },
-  "keywords": [
-    "typescript",
-    "ajax"
-  ],
-  "author": "Gurbinder Singh",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/gurbindersingh/simple-ajax-queue/issues"
-  },
-  "homepage": "https://github.com/gurbindersingh/simple-ajax-queue#readme",
-  "dependencies": {
-    "@types/node": "^12.6.8",
-    "tslint": "^5.18.0",
-    "typescript": "^3.5.3"
-  }
+    "name": "simple-ajax-queue",
+    "version": "0.0.1",
+    "description": "A simple Ajax Queue written in Typescript",
+    "main": "example.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "example": "tsc ./src/example.ts && node ./src/example.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/gurbindersingh/simple-ajax-queue.git"
+    },
+    "keywords": [
+        "typescript",
+        "ajax"
+    ],
+    "author": "Gurbinder Singh",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/gurbindersingh/simple-ajax-queue/issues"
+    },
+    "homepage": "https://github.com/gurbindersingh/simple-ajax-queue#readme",
+    "dependencies": {
+        "@types/node": "^12.6.8",
+        "tslint": "^5.18.0",
+        "typescript": "^3.5.3"
+    }
 }
