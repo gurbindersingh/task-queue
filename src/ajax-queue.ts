@@ -60,9 +60,9 @@ export class AjaxQueue {
 
     /**
      * Executes the first callback in the queue. If the callback terminates
-     * success (returns a resolved Promise) the next callback in the queue
-     * will be executed. If a rejected Promise is returned by the callback
-     * then the function will empty remove the remaining callbacks from the
+     * successfully (returns a resolved Promise), the next callback in the 
+     * queue will be executed. If a rejected Promise is returned by the callback
+     * then the function will empty the remaining callbacks from the
      * queue.
      *
      * WARNING: At the moment the function cannot handle cases where you
