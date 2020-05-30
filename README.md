@@ -40,7 +40,7 @@ QUEUE.add(foo);
 // The syntax for passing parameters to a function is the same as for the setIntervall() method
 QUEUE.add(bar, 'The quick brown fox', Math.ceil(Math.random() * 100)); 
 
-// Obviously we can also pass a arrow function
+// Obviously we can also pass an arrow function
 QUEUE.add(() => Promise.resolve());
 
 ```
