@@ -1,8 +1,8 @@
-# A Simple (~~Ajax~~) Task Queue
+# A Simple Task Queue
 
 Sometimes it is necessary to execute functions in a certain order, but the functions have to be executed asynchronously and they don't necessarily depend on each other. This queue is an example of a simple way to loosen the coupling between those functions. This is far from a refined method but might be a good starting point.
 
-The reason why the project is named "Ajax Queue" is because that's where I needed it but it will work with any function.
+> The reason why the project was originally named "Ajax Queue" is because that was my original use case for it but it will work with any function.
 
 ## Example
 
